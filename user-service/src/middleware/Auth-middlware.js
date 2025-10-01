@@ -1,25 +1,24 @@
 import jwt from "jsonwebtoken";
 
-export const AuthUser = (req, res, next) => {
+export const Verify_userIs_otpVerify = (req, res, next) => {
   try {
     const token = req.cookies.token;
-    // console.log(token);
-    if (!token) {
-      return res.status(401).json({
-        message: "Unauthorized: Token not found",
-        success: false,
-      });
-    }
+    if (!token) return res.status(401).json({ message: "Not logged in", IsLogged: false });
 
-    // verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRETE_KEY);
 
-    req.user = decoded._id; // attach user id to request
+    // if (!decoded.login_verified)
+    //   return res.status(401).json({ message: "Login not verified", IsLogged: false });
+
+    if (!decoded.otp_verified)
+      return res.status(403).json({ message: "OTP not verified", OTPVerified: false, IsLogged: true });
+
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({
-      message: "Unauthorized: " + error.message,
-      success: false,
-    });
+    return res.status(401).json({ message: "Unauthorized", IsLogged: false });
   }
 };
+
+
+
