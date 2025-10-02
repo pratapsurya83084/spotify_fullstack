@@ -141,8 +141,8 @@ export const LoginUser = async (req, res) => {
     }
 
     return res.json({
-      tempToken:tempToken,
-      verifyCode :code,
+      tempToken: tempToken,
+      verifyCode: code,
       message: "Login successful. Verification code sent.",
       success: true,
     });
@@ -156,22 +156,25 @@ export const LoginUser = async (req, res) => {
 
 export const VerifyCode = async (req, res) => {
   try {
-    
     const { verifyCode } = req.body;
-    
+
     if (!verifyCode) {
-      return res.json({ message: "Please enter verification code", success: false });
+      return res.json({
+        message: "Please enter verification code",
+        success: false,
+      });
     }
 
     const userId = req.user._id;
     const otpVerified = req.user.otp_verified;
-    console.log("user is founded :",userId +" "+ otpVerified);
-
-
+    console.log("user is founded :", userId + " " + otpVerified);
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.json({ message: "User not found or unauthorized", success: false });
+      return res.json({
+        message: "User not found or unauthorized",
+        success: false,
+      });
     }
 
     // Check OTP
@@ -184,7 +187,10 @@ export const VerifyCode = async (req, res) => {
       user.verifyCode = null;
       user.verifyCodeExpiry = null;
       await user.save();
-      return res.json({ message: "Code expired. Please request a new one.", success: false });
+      return res.json({
+        message: "Code expired. Please request a new one.",
+        success: false,
+      });
     }
 
     // OTP verified: clear OTP fields
@@ -207,16 +213,200 @@ export const VerifyCode = async (req, res) => {
       path: "/",
     });
 
-    return res.json({ 
-
-      message: "Verification successful", 
-      finalToken:finalToken, 
-      success: true 
+    return res.json({
+      message: "Verification successful",
+      finalToken: finalToken,
+      success: true,
     });
-
   } catch (error) {
     console.error("VerifyCode error:", error);
     return res.json({ message: error.message, success: false });
+  }
+};
+
+// get myprofile
+export const myProfile = async (req, res) => {
+  const userId = req.user._id; //user token
+
+  // console.log(userId)
+  let userProfile = await User.findById({ _id: userId }).select("-password");
+  if (userId || userProfile) {
+    if (userProfile) {
+      return res.json({
+        message: "profile retrieved",
+        userProfile,
+        success: true,
+      });
+    }
+  }
+
+  if (!userId) {
+    return res.json({
+      message: "UnAuthorized User,  Login please",
+      success: false,
+    });
+  }
+
+  if (!userProfile) {
+    return res.json({
+      message: "User not found",
+      success: false,
+    });
+  }
+};
+
+//get All user
+
+export const getUser = async (req, res) => {
+  try {
+    const isUser_verified_with_Otp = req.user.otp_verified;
+
+    // console.log("isUser_verified_with_login_verified is verified :" , isUser_verified_with_login_verified);
+    console.log("otp is verified :", isUser_verified_with_Otp); //true
+
+    if (isUser_verified_with_Otp) {
+      const users = await User.find();
+
+      return res.json({
+        message: "All user retrieve successfully",
+        users,
+      });
+    }
+
+    return res.json({
+      message: "Unauthorized user not retrieve UserList",
+      success: false,
+    });
+  } catch (error) {
+    console.log("error while fetching user :", error);
+  }
+};
+
+//forgot password
+// step 1 . take email from user
+// step 2. send password-reset link on that email with token expiration 60 second
+// step 3.
+
+export const ForgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Step 1: Check if email is provided
+    if (!email) {
+      return res.json({ message: "Please enter email", success: false });
+    }
+
+    // Step 2: Check if user exists in DB
+    const userExists = await User.findOne({ email });
+    if (!userExists) {
+      return res.json({
+        message: "User not found, please signup",
+        success: false,
+      });
+    }
+
+    // Step 3: Create token (valid for 15 minutes)
+    const secretKey = process.env.JWT_SECRETE_KEY || "dev_secret_key";
+    const token = jwt.sign({ _id: userExists._id }, secretKey, {
+      expiresIn: "15m",
+    });
+
+    // Step 4: Create local reset link
+    const link = `http://localhost:5000/user/reset-password/${userExists._id}/${token}`;
+
+    // Step 5: Nodemailer transport (local Gmail)
+    const transport = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD, // Gmail App Password
+      },
+    });
+
+    // Step 6: Mail options
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Password Reset Request (Local)",
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>Hello,</p>
+        <p>You requested to reset your password. Please click the button below to set a new password:</p>
+        <a href="${link}" style="display:inline-block;padding:12px 20px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a>
+        <p>If you didn’t request this, you can ignore this email.</p>
+        <br/>
+        <small>(This is a local development email, valid for 15 minutes)</small>
+      `,
+    };
+
+    // Step 7: Send mail
+    transport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res.json({
+          message: "Error while sending mail",
+          success: false,
+        });
+      }
+
+      // For local dev: log reset link so you can test directly
+      console.log("Password reset link (for testing):", link);
+
+      return res.json({
+        message: "Email sent successfully (check console for link in local)",
+        success: true,
+      });
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+// reset - password
+
+export const ResetPassword = async (req, res) => {
+  const { newPassword, conFirmPassword } = req.body;
+  const { id, token } = req.params;
+
+  try {
+    // Step 1: Validate inputs
+    if (!newPassword || !conFirmPassword) {
+      return res.status(400).json({ message: "All fields are required", success: false });
+    }
+
+    if (newPassword !== conFirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match", success: false });
+    }
+
+    // Step 2: Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRETE_KEY);
+    } catch (err) {
+      return res.status(400).json({ message: "Invalid or expired link", success: false });
+    }
+
+    // Step 3: find user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
+
+    // Step 4: Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Step 5: Update password
+    await User.findByIdAndUpdate(id, { password: hashedPassword });
+
+    // Step 6: Return success
+    return res.json({ message: "Password reset successfully", success: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message, success: false });
   }
 };
 
@@ -224,35 +414,3 @@ export const VerifyCode = async (req, res) => {
 
 
 
-
-//get All user
-
-export const getUser = async(req,res)=>{
-try {
-  const isUser_verified_with_Otp = req.user.otp_verified;
-  
-  // console.log("isUser_verified_with_login_verified is verified :" , isUser_verified_with_login_verified);
-  console.log("otp is verified :" , isUser_verified_with_Otp); //true
-
-
- if (isUser_verified_with_Otp) {
-
-    const users = await User.find();
-
-    return res.json({
-      message:"All user retrieve successfully",
-      users
-
-    })
-  }
-
-  return res.json({
-    message:"Unauthorized user not retrieve UserList",
-    success:false
-  })
-
-
-} catch (error) {
-  console.log("error while fetching user :" ,error);
-}
-}
