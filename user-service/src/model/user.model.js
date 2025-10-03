@@ -27,6 +27,11 @@ const UserSchema  = new mongoose.Schema({
     verifyCodeExpiry:{
         type:String,
     },
+  isAdmin: {
+  type: Boolean,
+  default: false
+},
+
     playList: [
         {
             type:String,

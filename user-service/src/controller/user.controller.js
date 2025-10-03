@@ -23,6 +23,7 @@ export const register = async (req, res) => {
         message: "User already exists",
       });
     }
+  
 
     const hashpassword = await bcrypt.hash(password, 10);
 
@@ -112,7 +113,7 @@ export const LoginUser = async (req, res) => {
 
     // Generate temporary token (login verified, OTP pending)
     const tempToken = jwt.sign(
-      { _id: user._id, login_verified: true, otp_verified: false },
+      { _id: user._id, isAdmin:user.isAdmin,login_verified: true, otp_verified: false },
       process.env.JWT_SECRETE_KEY,
       { expiresIn: "5m" } // short-lived token
     );
@@ -200,7 +201,7 @@ export const VerifyCode = async (req, res) => {
 
     // Generate final token with OTP verified
     const finalToken = jwt.sign(
-      { _id: user._id, login_verified: true, otp_verified: true },
+      { _id: user._id,isAdmin:user.isAdmin, login_verified: true, otp_verified: true },
       process.env.JWT_SECRETE_KEY,
       { expiresIn: "2d" } // long-lived token
     );
@@ -409,6 +410,31 @@ export const ResetPassword = async (req, res) => {
     return res.status(500).json({ message: error.message, success: false });
   }
 };
+
+// logout functionality
+export const LogoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,    // true only if using HTTPS
+      sameSite: "strict"
+    });
+
+    return res.status(200).json({
+      message: "Logged out successfully",
+      success: true
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error while logging out user",
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
 
 
 

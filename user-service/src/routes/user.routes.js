@@ -1,5 +1,5 @@
 import express from 'express';
-import { ForgotPassword, getUser, LoginUser, myProfile, register, ResetPassword, VerifyCode } from '../controller/user.controller.js';
+import { ForgotPassword, getUser, LoginUser, LogoutUser, myProfile, register, ResetPassword, VerifyCode } from '../controller/user.controller.js';
 import { Verify_userIs_otpVerify } from '../middleware/Auth-middlware.js';
 import {Verify_User_Islogged } from '../middleware/Verify-user.logged.auth.js';
 
@@ -10,6 +10,8 @@ router.post('/user/register',register);
 router.post('/user/login',LoginUser);
 router.post('/user/verify-code',Verify_User_Islogged , VerifyCode);
 router.get('/user/get-userlist',Verify_userIs_otpVerify , getUser);
+router.delete('/user/logout', LogoutUser);
+
 router.get('/user/me',Verify_userIs_otpVerify , myProfile);
 
 
