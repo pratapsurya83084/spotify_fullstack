@@ -1,12 +1,24 @@
 import express from "express";
 import dotenv from "dotenv";
 import { sql } from "./src/config/db.connection.js";
-import adminRoute from './src/routes/admin.route.js';
+import adminRoute from './src/route.js';
 import cookieParser from "cookie-parser";
+import { v2 as cloudinary } from 'cloudinary'
+
+
+
+cloudinary.config({ 
+  cloud_name: process.env.cloud_Name, 
+  api_key: process.env.Cloud_Api_key, 
+  api_secret: process.env.Cloud_Api_Secret,
+});
+
+
+
+
 
 
 const app = express();
-
 dotenv.config();
 
 
@@ -53,9 +65,9 @@ initDB().then(() => {
   });
 });
 
-// app.get('/u',(req,res)=>{
-//   res.send("work here...");
-// })
+app.get('/u',(req,res)=>{
+  res.send("work here...");
+})
 
 //routes
 app.use("/api/v1", adminRoute);
