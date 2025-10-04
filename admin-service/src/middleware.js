@@ -1,8 +1,7 @@
 import axios from "axios";
-import multer from "multer";
 
 
-export const getUserProfile = async (req, res, next) => {
+export const isAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
 
@@ -33,11 +32,25 @@ export const getUserProfile = async (req, res, next) => {
 
 
 
-// middleware for upload media file first multer and then db store
 
-const storage = multer.memoryStorage();
+import multer from "multer";
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
-export const uploadFile = multer({ storage }).single("file");
+const storageSong = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/songs");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
-export default uploadFile;
-
+export const upload = multer({ storage });
+export const uploadSong = multer({ storage: storageSong });
