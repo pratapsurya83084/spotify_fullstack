@@ -34,14 +34,21 @@ export const isAuth = async (req, res, next) => {
 
 
 import multer from "multer";
+
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./public/images");
+    
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
+    
   },
 });
+
+
+
 
 const storageSong = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -49,8 +56,28 @@ const storageSong = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
+   
   },
 });
 
+
+
+const storageThumnail = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/thumbnail");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+   
+  },
+});
+
+
+
+
+
 export const upload = multer({ storage });
 export const uploadSong = multer({ storage: storageSong });
+
+export const uploadThumnail = multer({ storage: storageThumnail });
+

@@ -23,6 +23,8 @@ const uploadOnCloudinary = async (localFilePath) => {
     //file after upload success then access short url
     // console.log("file is uploaded on cloudinary", response.url); //after uploaded cloudinary provide short url
     return response;
+    // return { url: response.secure_url || response.url };
+
   } catch (error) {
     fs.unlinkSync(localFilePath); //remove the file from server if failed uploaded file
   return null;
