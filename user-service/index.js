@@ -7,7 +7,12 @@ import cookieParser from 'cookie-parser';
 
 
 
+const app = express();
 
+app.use(cors({
+  origin:"*",
+  credentials:true
+}))
 
 
 dotenv.config();
@@ -27,7 +32,10 @@ connectDb();
 
 
 
-const app = express();
+
+
+
+
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());

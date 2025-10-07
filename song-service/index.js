@@ -8,6 +8,12 @@ import  redis from 'redis';
 const app = express();
 dotenv.config();
 
+app.use(cors({
+  origin:"*",
+  credentials:true
+}))
+
+
 export const Redisclient = redis.createClient({
 
 password:process.env.Redis_password,

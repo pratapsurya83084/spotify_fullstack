@@ -1,5 +1,7 @@
 import { uploadOnCloudinary } from "./cloudinary.js";
 import { sql } from "./config/db.connection.js";
+import {Redisclient}  from '../index.js';
+
 
 // add album
 export const addAlbum = async (req, res) => {
@@ -45,6 +47,17 @@ export const addAlbum = async (req, res) => {
       VALUES (${title}, ${description}, ${imageurl.url})
       RETURNING *
     `;
+
+     
+    if (Redisclient.isReady) {
+      await Redisclient.del("albums");
+      console.log("cach invalidate for albums");
+    }
+     
+
+
+
+
 
     res.json({ message: "Album created", album: result[0] });
   } catch (error) {
@@ -105,6 +118,11 @@ export const addSong = async (req, res) => {
       RETURNING *
     `;
 
+    if (Redisclient.isReady) {
+      await Redisclient.del("songs");
+      console.log("cach invalidate for songs");
+    }
+
     return res.status(201).json({
       message: "Song added successfully",
       success: true,
@@ -164,6 +182,13 @@ export const addThumbnail = async (req, res) => {
   UPDATE songs SET thumbnail=${uploadedImage.url} WHERE id = ${songid} RETURNING * 
 `;
 
+      if (Redisclient.isReady) {
+      await Redisclient.del("albums");
+      console.log("cach invalidate for albums");
+    }
+    
+
+
     res.json({ message: "Thubnail added", song: result[0] });
   } catch (error) {
     return res
@@ -197,6 +222,17 @@ export const deleteAlbum = async (req, res) => {
 
     const album = await sql`DELETE  FROM albums WHERE id=${id}`;
     //  console.log(album)
+
+         if (Redisclient.isReady) {
+      await Redisclient.del("albums");
+      console.log("cach invalidate for albums");
+    }
+    
+    if (Redisclient.isReady) {
+      await Redisclient.del("songs");
+      console.log("cach invalidate for songs");
+    }
+    
 
     if (album.length === 0) {
       return res.json({
@@ -244,6 +280,13 @@ export const deleteSong = async (req,res)=>{
 
     const deleteSong = await sql`DELETE FROM songs WHERE id=${Songid}`;
 
+   
+    
+    if (Redisclient.isReady) {
+      await Redisclient.del("songs");
+      console.log("cach invalidate for songs");
+    }
+    
     if(deleteSong.length ===0){
       return res.json({
         message:"song deleted successfully",

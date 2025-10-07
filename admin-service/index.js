@@ -4,6 +4,9 @@ import { sql } from "./src/config/db.connection.js";
 import adminRoute from './src/route.js';
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from 'cloudinary'
+import  redis from 'redis';
+import cors from 'cors';
+
 
 
 
@@ -20,6 +23,36 @@ cloudinary.config({
 
 const app = express();
 dotenv.config();
+
+app.use(cors({
+  origin:"*",
+  credentials:true
+}))
+
+
+export const Redisclient = redis.createClient({
+
+password:process.env.Redis_password,
+socket:{
+    host:"redis-15483.c305.ap-south-1-1.ec2.redns.redis-cloud.com",
+    port:15483,
+}
+
+});
+
+Redisclient.connect().then(()=>{
+    console.log("Connected to Redis...");
+})
+.catch((err)=>{ console.log("error in connecting to Redis",err);});
+
+
+
+
+
+
+
+
+
 
 
 app.use(express.json());

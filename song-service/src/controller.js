@@ -63,6 +63,8 @@ export const getSongs = async (req, res) => {
     
     if (Redisclient.isReady) {
       const cachedSongs = await Redisclient.get("songs");
+  console.log(cachedSongs);
+  
       if (cachedSongs) {
         console.log("Cache hit");
         return res.json({
@@ -71,6 +73,7 @@ export const getSongs = async (req, res) => {
           data: JSON.parse(cachedSongs),
         });
       }
+
     }
 
   
