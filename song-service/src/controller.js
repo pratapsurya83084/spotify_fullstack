@@ -27,6 +27,7 @@ export const getAlbums = async (req, res) => {
     if (!albums || albums.length === 0) {
       return res.json({
         status: false,
+             success:false,
         message: "No albums found",
         data: [],
       });
@@ -43,6 +44,7 @@ export const getAlbums = async (req, res) => {
 
     return res.json({
       status: true,
+           success:true,
       message: "Albums fetched successfully",
       data: albums,
     });
@@ -50,6 +52,7 @@ export const getAlbums = async (req, res) => {
     console.log(error);
     return res.json({
       status: false,
+           success:false,
       message: "Something went wrong",
       error: error.message,
     });
@@ -63,17 +66,17 @@ export const getSongs = async (req, res) => {
     
     if (Redisclient.isReady) {
       const cachedSongs = await Redisclient.get("songs");
-  console.log(cachedSongs);
+  // console.log(cachedSongs);
   
       if (cachedSongs) {
         console.log("Cache hit");
         return res.json({
           status: true,
+          success:true,
           message: "Songs fetched successfully (from cache)",
           data: JSON.parse(cachedSongs),
         });
       }
-
     }
 
   
@@ -83,6 +86,7 @@ export const getSongs = async (req, res) => {
     if (!songs || songs.length === 0) {
       return res.json({
         status: false,
+        success:false,
         message: "No songs found",
         data: [],
       });
@@ -99,13 +103,16 @@ export const getSongs = async (req, res) => {
 
     return res.json({
       status: true,
+           success:true,
       message: "Songs fetched successfully",
       data: songs,
     });
+    
   } catch (error) {
     console.log(error);
     return res.json({
       status: false,
+           success:false,
       message: "Something went wrong",
       error: error.message,
     });
@@ -127,6 +134,7 @@ export const getAllSongsOfAlbums = async (req, res) => {
         console.log("Cache hit");
         return res.json({
           status: true,
+          success:true,
           message: "Songs fetched successfully (from cache)",
           data: JSON.parse(cachedData),
         });
@@ -163,6 +171,7 @@ export const getAllSongsOfAlbums = async (req, res) => {
 
     return res.json({
       status: true,
+           success:true,
       message: "Songs fetched successfully",
       data: result,
     });
@@ -170,6 +179,7 @@ export const getAllSongsOfAlbums = async (req, res) => {
     console.log(error);
     return res.json({
       status: false,
+           success:false,
       message: "Something went wrong",
       error: error.message,
     });
@@ -190,6 +200,7 @@ export const getSingleSong = async (req, res) => {
         console.log("Cache hit");
         return res.json({
           status: true,
+          success:true,
           message: "Song fetched successfully (from cache)",
           data: JSON.parse(cachedSong),
         });
@@ -221,6 +232,7 @@ export const getSingleSong = async (req, res) => {
 
     return res.json({
       status: true,
+     success:true,
       message: "Song fetched successfully",
       data: songData,
     });
@@ -228,6 +240,7 @@ export const getSingleSong = async (req, res) => {
     console.log(error);
     return res.json({
       status: false,
+      success:false,
       message: "Something went wrong",
       error: error.message,
     });

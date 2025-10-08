@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import SongRouter  from './src/route.js';
 import  redis from 'redis';
+import cors from 'cors';
 
 
 
@@ -9,7 +10,7 @@ const app = express();
 dotenv.config();
 
 app.use(cors({
-  origin:"*",
+  origin:"http://localhost:5173",
   credentials:true
 }))
 
