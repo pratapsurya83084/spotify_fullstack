@@ -1,15 +1,28 @@
-import React from 'react'
-import Layout from './Layout'
-
+import React from "react";
+import Layout from "./Layout";
+import AllSongs from "./AllSongs";
 
 const Home = () => {
   return (
-    <div>
-     <Layout>
-        <h1>Home Page</h1>
-     </Layout>
-    </div>
-  )
-}
+    <Layout>
+<div>
+        <nav className="fixed ">
+      <ul className="flex space-x-4">
+        <li>All</li>
+        <li>Music</li>
+        <li>Podcast</li>
+      </ul>
+      </nav>
 
-export default Home
+      {/* Example scrollable content */}
+      <div className="mt-20">
+     
+        <AllSongs/>
+
+      </div>
+</div>
+    </Layout>
+  );
+};
+
+export default Home;
