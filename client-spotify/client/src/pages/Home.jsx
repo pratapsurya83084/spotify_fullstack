@@ -5,22 +5,10 @@ import AllSongs from "./AllSongs";
 const Home = () => {
   return (
     <Layout>
-<div>
-        <nav className="fixed ">
-      <ul className="flex space-x-4">
-        <li>All</li>
-        <li>Music</li>
-        <li>Podcast</li>
-      </ul>
-      </nav>
-
       {/* Example scrollable content */}
-      <div className="mt-20">
-     
-        <AllSongs/>
-
+      <div className="mt-0">
+        <AllSongs />
       </div>
-</div>
     </Layout>
   );
 };

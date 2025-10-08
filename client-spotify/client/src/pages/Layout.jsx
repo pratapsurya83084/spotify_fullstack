@@ -16,7 +16,7 @@ const Layout = ({children}) => {
     <div>
       <div>
           <Navbar/>
-        <div className=' flex gap-  bg-'>
+        <div className=' '>
         <LeftSideBar/>
 
           <div 
@@ -27,9 +27,10 @@ const Layout = ({children}) => {
           height: "100vh",
           overflowY: "auto",
         }}
-          className='w- h-screen bg-brown   text-white p-5 rounded-lg m-2  '>
+         className='w- h-screen bg-brown text-white  mt-20  fixed top-0 left-0 p- rounded-lg m-2  '>
        
           {children}
+          
           </div>
 
         </div>

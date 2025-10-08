@@ -1,133 +1,117 @@
 import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { AiOutlinePlus, AiOutlineFolder } from "react-icons/ai";
-import { MdPlaylistPlay } from "react-icons/md";
-import { BsMusicNoteList } from "react-icons/bs"; // or FaMusic, MdMusicNote, etc.
-import { IoLibraryOutline, IoLibrary } from "react-icons/io5";
+import { AiOutlinePlus } from "react-icons/ai";
+import { BsMusicNoteList } from "react-icons/bs";
+import { IoLibraryOutline } from "react-icons/io5";
 
 const LeftSideBar = ({ onCreate, onMyPlaylists }) => {
   const [searchVisible, setSearchVisible] = useState(false);
-  const [vsible, setVisibledropdown] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const showSearchBar = () => {
-    setSearchVisible(!searchVisible);
-  };
 
-  const showDropDown = () => {
-    console.log("Dropdown clicked");
-    setVisibledropdown(!vsible);
-  };
-
-  const iconSize = 24;
-  const iconColor = "#FFFFFF"; // white on dark bg, or dark on light
+  const toggleSearch = () => setSearchVisible(!searchVisible);
+  const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
   return (
-    <div className="bg-brown  text-white h-screen  mt-20  fixed top-0 left-0  p-5 rounded-lg m-2"
-      style={{ width: 'calc(20%)' }}
+    <div
+      className="fixed top-0 left-0 h-screen bg-brown text-white p-4 mt-20 rounded-lg shadow-lg flex flex-col items-start"
+      style={{ width: "calc(20%)" }}
     >
-      {/* phone size show icons leftside  bar */}
-      <div className="flex flex-col items-center justify-content-center">
+      {/* Mobile View Buttons */}{" "}
+      <div className="flex flex-col items-center gap-4 w-full md:hidden">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex md:hidden items-center gap-2 text-white px- py-2 rounded-md hover:bg-[#1f1f1f] transition"
-          style={{ backgroundColor: "#121212" }} >
-        
-          <svg
-            role="img"
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            width="24"
-            height="24"
-            fill="currentColor"
-          >
-            <path d="M14.457 15.207a1 1 0 0 1-1.414-1.414L14.836 12l-1.793-1.793a1 1 0 0 1 1.414-1.414l2.5 2.5a1 1 0 0 1 0 1.414z"></path>
-            <path d="M20 22a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2zM4 20V4h4v16zm16 0H10V4h10z"></path>
-          </svg>
+          className="flex items-center justify-center h-10 w-10 rounded-md bg-[#121212] hover:bg-[#1f1f1f] transition"
+        >
+          {" "}
+          <IoLibraryOutline size={22} />{" "}
         </button>
 
-        <div>
+        <button
+          onClick={onCreate}
+          className="flex items-center justify-center h-10 w-10 rounded-full bg-[#1f1f1f] hover:bg-[#2a2a2a] transition"
+        >
+          <AiOutlinePlus size={24} />
+        </button>
+
+        <button
+          onClick={onMyPlaylists}
+          className="flex items-center justify-center h-10 w-10 rounded-md bg-[#121212] hover:bg-[#1f1f1f] transition"
+        >
+          <BsMusicNoteList size={22} />
+        </button>
+      </div>
+
+
+      {/* Desktop View */}
+      <div className="hidden md:flex flex-col gap-6 w-full">
+        {/* Header Section */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-lg font-bold flex items-center gap-2">
+            <IoLibraryOutline className="md:hidden" size={22} /> Your Library
+          </h1>
           <button
             onClick={onCreate}
-            className="flex md:hidden items-center gap-2 px- py-2 rounded hover:bg-[#1f1f1f] transition"
+            className="bg-slate-800 hover:bg-slate-700 text-white text-sm rounded-full px-3 py-1 font-semibold"
           >
-            <AiOutlinePlus size={iconSize} color={iconColor} />
-          </button>
-
-          <button className="flex md:hidden items-center gap-2 bg-[#121212] text-white px- py-2 rounded-lg hover:bg-[#1f1f1f] transition">
-            <BsMusicNoteList size={24} />
-            {/* <span>My Music</span> */}
+            + Create
           </button>
         </div>
-      </div>
 
-      {/* First Row */}
-      <div className="hidden md:flex justify-between items-center mb-5">
-        <div className="hidden md:flex items-center gap-2">
-
-         
-
-          <h1 className="font-bold">Your Library</h1>
-        </div>
-
-        <button className="bg-slate-800 cursor-pointer rounded-full px-3 py-1 font-bold">
-          <span className="text-slate-400">+</span> Create
-        </button>
-      </div>
-
-      {/* icon my playList */}
-      {/* <MdPlaylistAdd size={24} /> */}
-      {/* Second Row */}
-      <div className="hidden md:flex justify-between items-center mb-5">
-        <button className="bg-slate-800 cursor-pointer rounded-full px-3 py-1 font-bold">
-          Playlists
-        </button>
-      </div>
-
-      {/* Third Row: Search */}
-      <div className="hidden md:flex items-center justify-between mb-5 relative ">
-        {/* Search Icon */}
-        <div
-          className={`${
-            !searchVisible ? "bg" : "bg-slate-800 text-white"
-          } p-1 rounded-md`}
-        >
-          <button onClick={showSearchBar} className="flex-shrink-0">
-            <FaSearch className="text-slate-400" size={18} />
-          </button>
-
-          {/* Search Input */}
-          <input
-            type="text"
-            placeholder="Search..."
-            className={`ml-2 bg-slate-800 text-white rounded-full px-3 py-1 focus:outline-none transition-all duration-300 ${
-              searchVisible ? "w-40 opacity-100" : "w-0 opacity-0 p-0"
-            }`}
-          />
-        </div>
-
-        <div>
+        {/* Playlist Section */}
+        <div className="flex justify-between items-center">
           <button
-            onClick={showDropDown}
-            //   onMouseOver={showDropDown}
-            className="text-2xl"
+            onClick={onMyPlaylists}
+            className="bg-slate-800 hover:bg-slate-700 text-white text-sm rounded-full px-3 py-1 font-semibold"
           >
-            {" "}
-            <span className="text-xl">{"recent"}</span> ={" "}
+            Playlists
           </button>
         </div>
-      </div>
 
-      {vsible && (
-        <div className="  bg-[#262626]  w-40 p-3 rounded-lg">
-          <ul className="space-y-2">
-            <li>Recent</li>
-            <li>Recent Added</li>
-            <li>Alphabetical</li>
-            <li>Recent Added</li>
-            <li>Creator</li>
-          </ul>
+        {/* Search & Dropdown */}
+        <div className="flex justify-between items-center relative">
+          <div
+            className={`flex items-center transition-all duration-300 ${
+              searchVisible ? "bg-slate-800 px-2 py-1 rounded-md" : ""
+            }`}
+          >
+            <button onClick={toggleSearch} className="text-slate-400">
+              <FaSearch size={18} />
+            </button>
+            <input
+              type="text"
+              placeholder="Search..."
+              className={`ml-2 bg-slate-800 text-white rounded-full px-3 py-1 focus:outline-none transition-all duration-300 ${
+                searchVisible ? "w-40 opacity-100" : "w-0 opacity-0 p-0"
+              }`}
+            />
+          </div>
+
+          <button
+            onClick={toggleDropdown}
+            className="text-sm text-slate-300 hover:text-white transition"
+          >
+            Recent ▾
+          </button>
+
+          {dropdownVisible && (
+            <div className="absolute right-0 top-8 bg-[#262626] w-40 p-3 rounded-lg shadow-lg">
+              <ul className="space-y-2 text-sm">
+                <li className="hover:text-indigo-400 cursor-pointer">Recent</li>
+                <li className="hover:text-indigo-400 cursor-pointer">
+                  Recently Added
+                </li>
+                <li className="hover:text-indigo-400 cursor-pointer">
+                  Alphabetical
+                </li>
+                <li className="hover:text-indigo-400 cursor-pointer">
+                  Creator
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
