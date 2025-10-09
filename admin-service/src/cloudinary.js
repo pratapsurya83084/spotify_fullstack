@@ -1,34 +1,32 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import dotenv from "dotenv";
+
 dotenv.config();
 
-//step.1 config cloudinary
 cloudinary.config({
   cloud_name: process.env.cloud_Name,
   api_key: process.env.Cloud_Api_key,
   api_secret: process.env.Cloud_Api_Secret,
 });
 
-//upload file
 const uploadOnCloudinary = async (localFilePath) => {
-  try {
-    if (!localFilePath) return null;
+  if (!localFilePath) return null;
 
-    //upload file
+  try {
     const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "auto",
+      resource_type: "auto", // auto detects image, video, audio
     });
 
-    //file after upload success then access short url
-    // console.log("file is uploaded on cloudinary", response.url); //after uploaded cloudinary provide short url
-    return response;
-    // return { url: response.secure_url || response.url };
-
+    return {
+      url: response.secure_url || response.url,
+      public_id: response.public_id,
+    };
   } catch (error) {
-    fs.unlinkSync(localFilePath); //remove the file from server if failed uploaded file
-  return null;
+    console.error("Cloudinary upload failed:", error.message);
+    if (fs.existsSync(localFilePath)) fs.unlinkSync(localFilePath);
+    return null;
   }
 };
 
-export {uploadOnCloudinary}
+export { uploadOnCloudinary };

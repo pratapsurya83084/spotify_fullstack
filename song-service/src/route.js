@@ -1,6 +1,6 @@
 
 import express from "express";
-import { getAlbums, getAllSongsOfAlbums, getSingleSong, getSongs } from "./controller.js";
+import { deleteAll, deleteSongById,  getAlbums, getAllSongsOfAlbums, getSingleSong, getSongs } from "./controller.js";
 
 
 const router= express.Router();
@@ -12,6 +12,8 @@ router.get('/all-songs',getSongs);
 
 router.get('/album/:id',getAllSongsOfAlbums);
 router.get('/song/:id',getSingleSong);
+router.get('/song/delete-song/:id',deleteSongById);
+router.delete('/song/delete-allsongs',deleteAll);
 
 
 

@@ -1,38 +1,42 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import songContext from '../context/AppContext';
+import songContext from "../context/AppContext";
 import { GrChapterNext, GrChapterPrevious } from "react-icons/gr";
 import { FaPause, FaPlay } from "react-icons/fa";
 
 const Player = () => {
   const {
-    songs,
-   fetchSongById,
-        fetchAlbumById,
     selectedSong,
+    setSelectedSong,
+    songs,
     isPlaying,
     setIsPlaying,
     prevSong,
     nextSong,
   } = useContext(songContext);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
+  const audioRef = useRef(null);
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  
+  // console.log("progress is:", progress);
+  // console.log("duration is:", duration);
+
+ 
+  useEffect(() => {
+    if (!selectedSong && songs && songs.length > 0) {
+      setSelectedSong(songs[0]);
+    }
+  }, [songs, selectedSong, setSelectedSong]);
+
+ 
   useEffect(() => {
     const audio = audioRef.current;
-
     if (!audio) return;
 
-    const handleLoadedMetaData = () => {
-      setDuration(audio.duration || 0);
-    };
-
-    const handleTimeUpdate = () => {
-      setProgress(audio.currentTime || 0);
-    };
+    const handleLoadedMetaData = () => setDuration(audio.duration || 0);
+    const handleTimeUpdate = () => setProgress(audio.currentTime || 0);
 
     audio.addEventListener("loadedmetadata", handleLoadedMetaData);
     audio.addEventListener("timeupdate", handleTimeUpdate);
@@ -41,102 +45,135 @@ const Player = () => {
       audio.removeEventListener("loadedmetadata", handleLoadedMetaData);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [songs]);
+  }, [duration,progress]);
 
+  
   const handlePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
     }
+    setIsPlaying(!isPlaying);
   };
 
+  
+  useEffect(() => {
+    if (audioRef.current && selectedSong) {
+      audioRef.current.load();
+      setProgress(0);
+      if (isPlaying) {
+        audioRef.current.play().catch(() => console.log("Autoplay blocked"));
+      }
+    }
+  }, [selectedSong]);
+
+  // ontrol
   const volumeChange = (e) => {
     const newVolume = parseFloat(e.target.value) / 100;
     setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
+    if (audioRef.current) audioRef.current.volume = newVolume;
   };
 
+ 
   const durationChange = (e) => {
     const newTime = (parseFloat(e.target.value) / 100) * duration;
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-    }
+    if (audioRef.current) audioRef.current.currentTime = newTime;
     setProgress(newTime);
   };
 
-  useEffect(() => {
-    fetchSongById();
-  }, [selectedSong]);
-
-
+  if (!selectedSong) {
+    return (
+      <div className="h-[10%] bg-black flex justify-center items-center text-gray-400">
+        No song selected
+      </div>
+    );
+  }
 
   return (
-    <div>
-      {songs && (
-        <div className="h-[10%] bg-black flex justify-between items-center text-white px-4">
-          <div className="lg:flex items-center gap-4">
-            <img
-              src={songs.thumbnail ? songs.thumbnail : "/download.jpeg"}
-              className="w-12"
-              alt=""
-            />
-            <div className="hidden md:block">
-              <p>{songs.title}</p>
-              <p>{songs.description?.slice(0, 30)}...</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-center gap-1 m-auto">
-            {songs.audio && (
-              <audio ref={audioRef} src={songs.audio} autoPlay={isPlaying} />
-            )}
+    <div className="h-[10%] bg-black flex justify-between items-center text-white px-4">
+      {/* Song Info */}
+      <div className="lg:flex items-center gap-4">
+        <img
+          src={selectedSong.thumbnail || "/download.jpeg"}
+          className="w-12 rounded"
+          alt=""
+        />
+        <div className="hidden md:block">
+          <p>{selectedSong.title}</p>
+          <p className="text-sm text-gray-400">
+            {selectedSong.description?.slice(0, 30)}...
+          </p>
+        </div>
+      </div>
 
-            <div className="w-full items-center flex font-thin text-green-400">
-              <input
-                type="range"
-                min={"0"}
-                max={"100"}
-                className="progress-bar w-[120px] md:w-[300px]"
-                value={(progress / duration) * 100 || 0}
-                onChange={durationChange}
-              />
-            </div>
-            <div className="flex justify-center items-center gap-4">
-              <span className="cursor-pointer" onClick={prevSong}>
-                <GrChapterPrevious />
-              </span>
+      {/* Player Controls */}
+      <div className="flex flex-col items-center gap-1 m-auto">
+        {selectedSong.audio && (
+          <audio
+            ref={audioRef}
+            src={selectedSong.audio}
+            onEnded={nextSong}
+          />
+        )}
 
-              <button
-                className="bg-white text-black rounded-full p-2"
-                onClick={handlePlayPause}
-              >
-                {isPlaying ? <FaPause /> : <FaPlay />}
-              </button>
+        {/* Progress bar */}
+        <div className="w-full items-center flex flex-col font-thin text-green-400">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            className="progress-bar w-[120px] md:w-[300px]"
+            value={duration > 0 ? (progress / duration) * 100 : 0}
+            onChange={durationChange}
+          />
 
-              <span className="cursor-pointer" onClick={nextSong}>
-                <GrChapterNext />
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="range"
-              className="w-16 md:w-32"
-              min={"0"}
-              max={"100"}
-              step={"0.01"}
-              value={volume * 100}
-              onChange={volumeChange}
-            />
+          {/* Time Display */}
+          <div className="text-xs text-gray-400 flex justify-between w-full px-2">
+            <span>
+              {Math.floor(progress / 60)}:
+              {("0" + Math.floor(progress % 60)).slice(-2)}
+            </span>
+            <span>
+              {Math.floor(duration / 60)}:
+              {("0" + Math.floor(duration % 60)).slice(-2)}
+            </span>
           </div>
         </div>
-      )}
+
+        {/* Control Buttons */}
+        <div className="flex justify-center items-center gap-4 mt-1">
+          <span className="cursor-pointer" onClick={prevSong}>
+            <GrChapterPrevious />
+          </span>
+
+          <button
+            className="bg-white text-black rounded-full p-2"
+            onClick={handlePlayPause}
+          >
+            {isPlaying ? <FaPause /> : <FaPlay />}
+          </button>
+
+          <span className="cursor-pointer" onClick={nextSong}>
+            <GrChapterNext />
+          </span>
+        </div>
+      </div>
+
+      {/* Volume Control */}
+      <div className="flex items-center">
+        <input
+          type="range"
+          className="w-16 md:w-32"
+          min="0"
+          max="100"
+          step="0.01"
+          value={volume * 100}
+          onChange={volumeChange}
+        />
+      </div>
     </div>
   );
 };

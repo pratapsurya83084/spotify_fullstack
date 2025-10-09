@@ -247,3 +247,69 @@ export const getSingleSong = async (req, res) => {
   }
 };
 
+
+
+//delete by deleteSongbyId
+
+export const deleteSongById = async (req, res) => {
+  try {
+    const songid = req.params.id; // ✅ get song ID from URL params
+
+    if (!songid) {
+      return res.json({
+        message: "Song ID not provided",
+        success: false,
+      });
+    }
+
+    const result = await sql`DELETE FROM songs WHERE id = ${songid}`;
+
+    if (result.count > 0) {
+      return res.json({
+        message: "Song deleted successfully",
+        success: true,
+      });
+    } else {
+      return res.json({
+        message: "Song not found",
+        success: false,
+      });
+    }
+  } catch (error) {
+    console.log("Error while deleting song:", error);
+    return res.json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+ 
+
+
+
+//delete all song
+
+export const deleteAll = async (req, res) => {
+  try {
+    const result = await sql`DELETE FROM songs`;
+
+    if (result.count > 0) {
+      return res.json({
+        message: "All songs deleted successfully",
+        success: true,
+      });
+    }
+
+    return res.json({
+      message: "No songs found to delete",
+      success: false,
+    });
+  } catch (error) {
+    console.log("Error deleting all songs:", error);
+    return res.json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
