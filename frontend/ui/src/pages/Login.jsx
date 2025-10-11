@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
-import { userContext } from "./UserState";
-import { useNavigate } from "react-router-dom";
+import { userContext } from "../context/UserState";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function Login() {
 
     // Simulate login (replace with real API call)
     const res = await loginUser(email, password);
-    console.log("login : ", res);
+    console.log("login : ", res.data);
     if (res.success) {
       alert(res.message + " on email ");
       navigate("/verify-code");
@@ -163,9 +163,9 @@ export default function Login() {
 
         <div className="mt-6 text-center text-sm text-gray-400">
           <span>Don’t have an account? </span>
-          <a href="#" className="text-white hover:underline">
+          <Link to={'/sign-up'} className="text-white hover:underline">
             Sign up for Spotify
-          </a>
+          </Link>
         </div>
 
         <div className="mt-6">
@@ -175,13 +175,13 @@ export default function Login() {
             <span className="flex-grow h-px bg-white/6" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
+          <div className="grid grid-cols- gap-3">
+            {/* <button
               className="flex items-center justify-center gap-2 rounded-md border border-white/6 px-3 py-2 text-sm text-white/90 hover:bg-white/3"
               aria-label="Continue with Apple"
             >
               Apple
-            </button>
+            </button> */}
             <button
               className="flex items-center justify-center gap-2 rounded-md border border-white/6 px-3 py-2 text-sm text-white/90 hover:bg-white/3"
               aria-label="Continue with Google"

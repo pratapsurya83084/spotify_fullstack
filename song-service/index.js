@@ -9,10 +9,12 @@ import cors from 'cors';
 const app = express();
 dotenv.config();
 
-app.use(cors({
-  origin:"http://localhost:5173",
-  credentials:true
-}))
+app.use(
+  cors({
+    origin: "http://localhost:5173", 
+    credentials: true, 
+  })
+);
 
 
 export const Redisclient = redis.createClient({

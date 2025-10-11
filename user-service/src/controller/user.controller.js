@@ -7,7 +7,7 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password || !role) {
+    if (!name || !email || !password ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -68,6 +68,8 @@ function generateCode() {
 
 async function sendVerificationEmail(to, code) {
   try {
+   
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -91,6 +93,53 @@ async function sendVerificationEmail(to, code) {
   }
 }
 
+//resend email 
+export const ResendCode = async (req, res)=>{
+  try {
+     //find requested User 
+    const userid = req.user._id;
+    
+    if (!userid) {
+      return res.json({
+        message:"user not authorized  ,please login",
+        success:false
+      })
+    }
+
+    //find user email 
+    const user = await User.findById(userid);
+if (!user) {
+  return res.json({
+    message:"User is not found",
+    success:false
+  })
+}
+    const isemail = user.email
+  
+const code = generateCode();
+const sendCode = sendVerificationEmail(isemail,code);
+if (sendCode) {
+
+  user.verifyCode=sendCode;
+  
+  return res.json({
+    message:"resend code successfully...",
+    success:true,
+    sendCode
+
+  })
+}
+
+  } catch (error) {
+    
+    console.log("error while  resending verification code :",error);
+  return res.json({
+    message:error.message,
+    success:false
+  })
+
+  }
+}
 //login user
 
 export const LoginUser = async (req, res) => {
@@ -119,17 +168,17 @@ export const LoginUser = async (req, res) => {
     );
 
     res.cookie("token", tempToken, {
-      maxAge: 5 * 60 * 1000, // 5 min for temp token
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-    });
+      httpOnly: true,     
+      secure: false,    
+      sameSite:"lax",   
+      maxAge: 24 * 24 * 60 * 60 * 1000,   // 2 day's expiry
+});
+
 
     // Generate OTP
     const code = generateCode();
     user.verifyCode = code;
-    user.verifyCodeExpiry = Date.now() + 30 * 1000; // 30 seconds
+    user.verifyCodeExpiry = Date.now() + 60 * 1000; // 30 seconds
     await user.save();
 
     // Send email
@@ -158,7 +207,7 @@ export const LoginUser = async (req, res) => {
 export const VerifyCode = async (req, res) => {
   try {
     const { verifyCode } = req.body;
-
+console.log("receive code :",verifyCode)
     if (!verifyCode) {
       return res.json({
         message: "Please enter verification code",
@@ -167,6 +216,7 @@ export const VerifyCode = async (req, res) => {
     }
 
     const userId = req.user._id;
+    
     const otpVerified = req.user.otp_verified;
     console.log("user is founded :", userId + " " + otpVerified);
 
