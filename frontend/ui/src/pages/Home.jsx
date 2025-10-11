@@ -4,11 +4,11 @@ import SongContext from "../context/AppContext";
 import AlbumCard from "../components/AlbumCard";
 import SongCards from "../components/SongCards";
 import Loading from "../components/Loading";
+import { userContext } from "../context/UserState";
 
 const Home = () => {
   const { albums , songs , loading } = useContext(SongContext);
 
-  // console.log(songs);
   return (
  <div>
   {
@@ -18,14 +18,14 @@ const Home = () => {
         <h1 className="my-5 font-bold text-2xl">Featured Charts</h1>
 
         <div className="flex overflow-auto">
-          {albums.map((e, i) => {
+          {albums?.map((e, i) => {
             return (
               <AlbumCard
                 key={i}
-                image={e.thumbnail}
-                name={e.title}
-                desc={e.description}
-                id={e.id}
+                image={e?.thumbnail}
+                name={e?.title}
+                desc={e?.description}
+                id={e?.id}
               />
             );
           })}
@@ -38,15 +38,15 @@ const Home = () => {
         <h1 className="my-5 font-bold text-2xl"> Today's biggest hits </h1>
 
      <div className="flex overflow-auto">
-  {Array.isArray(songs) && songs.length > 0 ? (
-    songs.map((e, i) => (
+  {Array?.isArray(songs) && songs?.length > 0 ? (
+    songs?.map((e, i) => (
       <SongCards
         key={i}
-        image={e.thumbnail}
-        name={e.title}
-        desc={e.description}
-        audio={e.audio}
-        id={e.id}
+        image={e?.thumbnail}
+        name={e?.title}
+        desc={e?.description}
+        audio={e?.audio}
+        id={e?.id}
       />
     ))
   ) : (

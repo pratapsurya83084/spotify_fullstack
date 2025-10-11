@@ -456,21 +456,21 @@ export const ResetPassword = async (req, res) => {
 export const LogoutUser = async (req, res) => {
   try {
     res.clearCookie("token", {
-      httpOnly: true,
-      secure: true,    // true only if using HTTPS
-      sameSite: "strict"
+      httpOnly: true,   // must match cookie creation
+      secure: false,    // true only if using HTTPS
+      sameSite: "lax",
+      path: "/",        // important if you set it earlier
     });
 
     return res.status(200).json({
       message: "Logged out successfully",
-      success: true
+      success: true,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "Error while logging out user",
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 };

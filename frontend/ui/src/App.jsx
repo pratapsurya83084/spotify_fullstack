@@ -13,12 +13,12 @@ const App = () => {
 
 const {IsAuth , loading } = useContext(userContext);
 
-console.log("is auth : " , IsAuth);
+console.log("is auth : " , loading,IsAuth);
 
   return (
     <BrowserRouter>
-    {/* { */}
-      // loading? (
+    {
+     !loading? (
           <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={IsAuth?<Home/>  :<Login />} />
@@ -26,13 +26,13 @@ console.log("is auth : " , IsAuth);
         <Route path="/verify-code" element={IsAuth?<Home/>:<Verify_Code />} />
       </Routes>
       
-    // ):
+    ):
 
-    // (
-{/* <Loading/> */}
-    // )
-
-    // 
+    (
+<Loading/> 
+    )
+  }
+    
     </BrowserRouter>
   );
 };

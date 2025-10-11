@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { userContext } from "../context/UserState";
+
 
 const Navbar = () => {
   const navigate = useNavigate();
+const { IsAuth ,Logout} = useContext(userContext);
+  console.log(IsAuth.success);
+
+//logOutUser function
+const logOutUser = async ()=>{
+  try {
+    const res = await Logout();
+    console.log("logout statusa : ",res)
+  } catch (error) {
+    console.log("error while Logout User:",error);
+  }
+}
+
 
   return (
     <>
@@ -33,9 +48,17 @@ const Navbar = () => {
           <p className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full hidden md:block">
             Install App
           </p>
-          <p className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full hidden md:block">
-            Logout{" "}
-          </p>
+         
+         {
+          IsAuth.success?
+          ( <button onClick={logOutUser} className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full hidden md:block">
+        Logout 
+          </button>)
+          :
+          ( <button onClick={ ()=> navigate('/login') } className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full hidden md:block">
+        Login 
+          </button>)
+         }
         </div>
       </div>
 

@@ -104,8 +104,25 @@ return res.data;
 } catch (error) {
   console.log("error verifying otp :" , error.message);
 }
-} 
+}; 
 
+//logout function
+ const Logout = async()=>{
+
+  try {
+    
+const res = await axios.post("http://localhost:5000/api/v1/user/logout", {}, {
+  withCredentials: true,   
+});
+
+
+return res.data;
+
+  } catch (error) {
+    console.log("error while logout User :",error.message);
+    return;
+  }
+};
 
 
   return (
@@ -116,7 +133,8 @@ return res.data;
         otp_verify,
         User,
         loading,
-        IsAuth
+        IsAuth,
+        Logout
       }}
     >
       {children}
