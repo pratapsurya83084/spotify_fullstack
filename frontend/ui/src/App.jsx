@@ -17,21 +17,22 @@ console.log("is auth : " , IsAuth);
 
   return (
     <BrowserRouter>
-    {
-      loading? (  <Routes>
+    {/* { */}
+      // loading? (
+          <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={IsAuth?<Home/>  :<Login />} />
         <Route path="/sign-up" element={<Signup />} />
-        <Route path="/verify-code" element={<Verify_Code />} />
+        <Route path="/verify-code" element={IsAuth?<Home/>:<Verify_Code />} />
       </Routes>
       
-    ):
+    // ):
 
-    (
-<Loading/>
-    )
+    // (
+{/* <Loading/> */}
+    // )
 
-    }
+    // 
     </BrowserRouter>
   );
 };

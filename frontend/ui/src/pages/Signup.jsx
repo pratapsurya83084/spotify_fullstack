@@ -3,7 +3,7 @@ import { userContext } from "../context/UserState";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-    const {Signup} = useContext(userContext);
+    const {signup} = useContext(userContext);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,7 +29,7 @@ const Signup = () => {
     try {
      console.log("Signup Data:", formData);
 
-     const signupUser = await Signup(formData);
+     const signupUser = await signup(formData);
      console.log("register user success : ", signupUser);
      // console.log(signupUser.success);
     

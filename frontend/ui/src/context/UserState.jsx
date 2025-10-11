@@ -18,11 +18,11 @@ const [loading , setLoading]  = useState(true);
   const fetchUser = async () => {
       setLoading(true);
     try {
-      const res = await axios.get(`${baseUrl}/me`, {
-        headers: {
-          headers: { "Content-Type": "application/json" },
+      const res = await axios.get(`${baseUrl}/me`, { 
+          headers: {
+             "Content-Type": "application/json" 
+            },
           withCredentials: true,
-        },
       });
 
       console.log("User retrieved:", res.data);
@@ -46,24 +46,26 @@ useEffect(()=>{
 },[]);
 
 
-const Signup = async(formData)=>{
+const signup = async (userData) => {
   try {
-     
- const res = await axios.post(`${baseUrl}/register`,{name:formData.name,email:formData.email,password:formData.password,role:formData.role},
-        {
-          headers: {
-            "Content-type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-   return res.data;
+    console.log("Sending signup data:", userData);
 
+    const res = await axios.post(
+      "http://localhost:5000/api/v1/user/register",
+      userData,
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+
+    console.log("Signup success:", res.data);
+    return res.data;
   } catch (error) {
-    console.log("error while signup user :" , error);
+    console.error("Signup error:", error.response?.data || error.message);
+    return error.response?.data;
   }
-}
-
+};
 
 
   //login
@@ -109,7 +111,7 @@ return res.data;
   return (
     <userContext.Provider
       value={{
-        Signup,
+        signup,
         loginUser,
         otp_verify,
         User,

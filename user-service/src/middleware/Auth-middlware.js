@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 export const Verify_userIs_otpVerify = (req, res, next) => {
   try {
     const token = req.cookies.token;
+    // console.log("tokn is received : ", token);
+    
     if (!token) return res.status(401).json({ message: "token not found,Please Login first", IsLogged: false });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRETE_KEY);

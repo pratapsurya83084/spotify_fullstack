@@ -94,52 +94,43 @@ async function sendVerificationEmail(to, code) {
 }
 
 //resend email 
-export const ResendCode = async (req, res)=>{
+export const ResendCode = async (req, res) => {
   try {
-     //find requested User 
-    const userid = req.user._id;
-    
-    if (!userid) {
-      return res.json({
-        message:"user not authorized  ,please login",
-        success:false
-      })
+    const userId = req.user._id;
+
+    if (!userId) {
+      return res.json({ message: "User not authorized, please login", success: false });
     }
 
-    //find user email 
-    const user = await User.findById(userid);
-if (!user) {
-  return res.json({
-    message:"User is not found",
-    success:false
-  })
-}
-    const isemail = user.email
-  
-const code = generateCode();
-const sendCode = sendVerificationEmail(isemail,code);
-if (sendCode) {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ message: "User not found", success: false });
+    }
 
-  user.verifyCode=sendCode;
-  
-  return res.json({
-    message:"resend code successfully...",
-    success:true,
-    sendCode
+    const code = generateCode();
 
-  })
-}
+    // Send email
+    const emailResult = await sendVerificationEmail(user.email, code);
+    if (!emailResult.success) {
+      return res.json({ message: "Failed to send verification code", success: false });
+    }
+
+    // Save OTP and expiry in DB
+    user.verifyCode = code; // ✅ save the actual OTP code
+    user.verifyCodeExpiry = new Date(Date.now() + 60 * 1000); // 60 seconds expiry
+    await user.save(); // ✅ await to ensure DB is updated
+
+    return res.json({
+      message: "Resend code successfully",
+      success: true,
+    });
 
   } catch (error) {
-    
-    console.log("error while  resending verification code :",error);
-  return res.json({
-    message:error.message,
-    success:false
-  })
-
+    console.log("Error resending verification code:", error);
+    return res.json({ message: error.message, success: false });
   }
-}
+};
+
 //login user
 
 export const LoginUser = async (req, res) => {
@@ -178,7 +169,8 @@ export const LoginUser = async (req, res) => {
     // Generate OTP
     const code = generateCode();
     user.verifyCode = code;
-    user.verifyCodeExpiry = Date.now() + 60 * 1000; // 30 seconds
+    user.verifyCodeExpiry = new Date(Date.now() + 60 * 1000);
+
     await user.save();
 
     // Send email
@@ -233,22 +225,10 @@ console.log("receive code :",verifyCode)
       return res.json({ message: "Invalid verification code", success: false });
     }
 
-    // Check expiry
-    if (Date.now() > user.verifyCodeExpiry) {
-      user.verifyCode = null;
-      user.verifyCodeExpiry = null;
-      await user.save();
-      return res.json({
-        message: "Code expired. Please request a new one.",
-        success: false,
-      });
-    }
+  
 
-    // OTP verified: clear OTP fields
-    user.verifyCode = null;
-    user.verifyCodeExpiry = null;
-    await user.save();
-
+ 
+  
     // Generate final token with OTP verified
     const finalToken = jwt.sign(
       { _id: user._id,isAdmin:user.isAdmin, login_verified: true, otp_verified: true },
@@ -263,12 +243,23 @@ console.log("receive code :",verifyCode)
       sameSite: "lax",
       path: "/",
     });
+    
 
-    return res.json({
+    
+     res.json({
       message: "Verification successful",
       finalToken: finalToken,
       success: true,
     });
+   // OTP verified: clear OTP fields
+      user.verifyCode = null;
+    user.verifyCodeExpiry = null;
+    await user.save();
+
+  
+    return;
+
+
   } catch (error) {
     console.error("VerifyCode error:", error);
     return res.json({ message: error.message, success: false });

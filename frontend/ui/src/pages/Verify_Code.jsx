@@ -1,18 +1,22 @@
+
+
 import React, { useState, useEffect, useContext } from "react";
 import { userContext } from "../context/UserState";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Verify_Code = () => {
   const [code, setCode] = useState("");
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState(60);
   const [isExpired, setIsExpired] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { otp_verify } = useContext(userContext);
-
-  // Initialize timer based on localStorage expiry
+   const navigate = useNavigate();
+  // Initialize timer from localStorage
   useEffect(() => {
-    const storedExpiry = localStorage.getItem("otpExpiry");
+    const storedExpiry = localStorage.getItem("otp-expiry");
+
     if (storedExpiry) {
       const remaining = Math.floor((Number(storedExpiry) - Date.now()) / 1000);
       if (remaining > 0) {
@@ -20,13 +24,17 @@ const Verify_Code = () => {
         setIsExpired(false);
       } else {
         setTimer(0);
-        setIsExpired(true);
+      //  showResesndbtn_IN_CASE_true
+
+        localStorage.setItem('resend',"true")
+        setIsExpired(localStorage.getItem("resend"));
       }
     } else {
-      // First load after login
-      setTimer(60);
+      // First visit: set expiry 60 seconds from now
       const expiryTime = Date.now() + 60 * 1000;
-      localStorage.setItem("otpExpiry", expiryTime);
+      localStorage.setItem("otp-expiry", expiryTime);
+      setTimer(60);
+      setIsExpired(false);
     }
   }, []);
 
@@ -36,8 +44,20 @@ const Verify_Code = () => {
       setIsExpired(true);
       return;
     }
-    const countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
-    return () => clearInterval(countdown);
+
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        const newTime = prev - 1;
+        if (newTime <= 0) {
+          setIsExpired(true);
+          localStorage.removeItem("otp-expiry");
+          return 0;
+        }
+        return newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [timer]);
 
   // Verify OTP
@@ -49,10 +69,13 @@ const Verify_Code = () => {
     try {
       const response = await otp_verify(code);
       setLoading(false);
+
       if (response.success) {
         alert(response.message);
-        localStorage.removeItem("otpExpiry"); // remove expiry after successful verify
-        // Redirect user here
+       navigate('/')
+        localStorage.removeItem("otp-expiry"); // clear after success
+     setIsExpired(localStorage.setItem("resend","false"))
+       
       } else {
         alert(response.message);
       }
@@ -77,8 +100,8 @@ const Verify_Code = () => {
 
       if (res.data.success) {
         alert(res.data.message);
-        const expiryTime = Date.now() + 60 * 1000; // 60 seconds
-        localStorage.setItem("otpExpiry", expiryTime);
+        const expiryTime = Date.now() + 60 * 1000;
+        localStorage.setItem("otp-expiry", expiryTime);
         setTimer(60);
         setIsExpired(false);
       } else {
@@ -131,6 +154,7 @@ const Verify_Code = () => {
           >
             Resend Code
           </button>
+
         )}
       </div>
     </div>
