@@ -1,20 +1,30 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../context/UserState";
-
+import { toast ,Toaster} from "react-hot-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
-const { IsAuth ,Logout} = useContext(userContext);
-  console.log(IsAuth.success);
+const { IsAuth,setIsAuth ,User,Logout} = useContext(userContext);
+  // console.log(IsAuth ,  User);
 
 //logOutUser function
 const logOutUser = async ()=>{
   try {
     const res = await Logout();
-    console.log("logout statusa : ",res)
+    // console.log("logout statusa : ",res)
+    
+    if (res.success == true) {
+      toast.success(' ✅ logout success')
+setTimeout(() => {
+        navigate('/login');
+      setIsAuth(false);
+},1500 );
+    }
+
   } catch (error) {
     console.log("error while Logout User:",error);
+    toast.error(error.message)
   }
 }
 
@@ -22,6 +32,7 @@ const logOutUser = async ()=>{
   return (
     <>
       <div className="w-full flex justify-between items-center font-semibold ">
+           <Toaster position="top-right" reverseOrder={false} />
         <div className="flex items-center gap-2">
           <img
             src="/left_arrow.png"
@@ -50,7 +61,7 @@ const logOutUser = async ()=>{
           </p>
          
          {
-          IsAuth.success?
+          IsAuth ?
           ( <button onClick={logOutUser} className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full hidden md:block">
         Logout 
           </button>)

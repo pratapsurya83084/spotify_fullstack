@@ -350,11 +350,11 @@ export const ForgotPassword = async (req, res) => {
     // Step 3: Create token (valid for 15 minutes)
     const secretKey = process.env.JWT_SECRETE_KEY || "dev_secret_key";
     const token = jwt.sign({ _id: userExists._id }, secretKey, {
-      expiresIn: "15m",
+      expiresIn: "5m",
     });
 
     // Step 4: Create local reset link
-    const link = `http://localhost:5000/user/reset-password/${userExists._id}/${token}`;
+    const link = `http://localhost:5173/user/reset-password/${userExists._id}/${token}`;
 
     // Step 5: Nodemailer transport (local Gmail)
     const transport = nodemailer.createTransport({
@@ -369,7 +369,7 @@ export const ForgotPassword = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
-      subject: "Password Reset Request (Local)",
+      subject: "Spotify Password Reset Request (Local)",
       html: `
         <h2>Password Reset Request</h2>
         <p>Hello,</p>
@@ -377,7 +377,7 @@ export const ForgotPassword = async (req, res) => {
         <a href="${link}" style="display:inline-block;padding:12px 20px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a>
         <p>If you didn’t request this, you can ignore this email.</p>
         <br/>
-        <small>(This is a local development email, valid for 15 minutes)</small>
+        <small>(This is a local development email, valid for 5 minutes)</small>
       `,
     };
 
@@ -395,10 +395,12 @@ export const ForgotPassword = async (req, res) => {
       console.log("Password reset link (for testing):", link);
 
       return res.json({
-        message: "Email sent successfully (check console for link in local)",
+        message: "Password Reset Link is sent on Email ,please check email ",
         success: true,
       });
     });
+
+
   } catch (error) {
     console.error(error.message);
     return res.json({

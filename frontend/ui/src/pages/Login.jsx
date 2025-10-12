@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { userContext } from "../context/UserState";
 import { Link, useNavigate } from "react-router-dom";
+import { toast ,Toaster} from "react-hot-toast";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,12 +35,15 @@ export default function Login() {
 
     // Simulate login (replace with real API call)
     const res = await loginUser(email, password);
-    console.log("login : ", res.data);
+    // console.log("login : ", res.data);
     if (res.success) {
-      alert(res.message + " on email ");
-      navigate("/verify-code");
+      
+      toast.success(res.message + " on email ");
+    setTimeout(() => {
+        navigate("/verify-code");
+    }, 1500);
     } else {
-      alert(res.message);
+       toast.error(res.message);
     }
 
     setTimeout(() => {
@@ -50,8 +54,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#121212] via-[#1b1b1b] to-[#111827] px-4">
-      <div className="max-w-md w-full bg-white/5 backdrop-blur-sm border border-white/6 rounded-2xl p-8 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-gray-900 to-gray-800  px-4">
+      <Toaster position="top-right" reverseOrder={false} />
+      <div className="max-w-md w-full bg-gray-900/90 backdrop-blur-md  border border-gray-700 rounded-2xl p-8 shadow-2xl">
         <header className="text-center mb-6">
           <div className="text-3xl font-extrabold text-white tracking-tight">
             Spotify{" "}
@@ -124,9 +129,9 @@ export default function Login() {
               Remember me
             </label>
 
-            <a href="#" className="text-green-500 hover:underline">
+            <Link to={'/forgot-password'} className="text-green-500 hover:underline">
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           <button
