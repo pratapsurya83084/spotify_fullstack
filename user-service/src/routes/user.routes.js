@@ -1,5 +1,5 @@
 import express from 'express';
-import { ForgotPassword, getUser, LoginUser, LogoutUser, myProfile, register, ResendCode, ResetPassword, VerifyCode } from '../controller/user.controller.js';
+import { AddToPlayList, ForgotPassword, getUser, LoginUser, LogoutUser, myProfile, register, ResendCode, ResetPassword, VerifyCode } from '../controller/user.controller.js';
 import { Verify_userIs_otpVerify } from '../middleware/Auth-middlware.js';
 import {Verify_User_Islogged } from '../middleware/Verify-user.logged.auth.js';
 
@@ -25,6 +25,7 @@ router.get('/user/me',Verify_userIs_otpVerify , myProfile);
 //forgot password
 router.post('/user/forgot-password',ForgotPassword);
 router.post('/user/reset-password/:id/:token' , ResetPassword);
+router.post('/user/song/:songId' ,Verify_userIs_otpVerify, AddToPlayList);
 
 
 

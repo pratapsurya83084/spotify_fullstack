@@ -7,7 +7,7 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password ) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -23,7 +23,6 @@ export const register = async (req, res) => {
         message: "User already exists",
       });
     }
-  
 
     const hashpassword = await bcrypt.hash(password, 10);
 
@@ -68,8 +67,6 @@ function generateCode() {
 
 async function sendVerificationEmail(to, code) {
   try {
-   
-
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -93,13 +90,16 @@ async function sendVerificationEmail(to, code) {
   }
 }
 
-//resend email 
+//resend email
 export const ResendCode = async (req, res) => {
   try {
     const userId = req.user._id;
 
     if (!userId) {
-      return res.json({ message: "User not authorized, please login", success: false });
+      return res.json({
+        message: "User not authorized, please login",
+        success: false,
+      });
     }
 
     const user = await User.findById(userId);
@@ -112,7 +112,10 @@ export const ResendCode = async (req, res) => {
     // Send email
     const emailResult = await sendVerificationEmail(user.email, code);
     if (!emailResult.success) {
-      return res.json({ message: "Failed to send verification code", success: false });
+      return res.json({
+        message: "Failed to send verification code",
+        success: false,
+      });
     }
 
     // Save OTP and expiry in DB
@@ -124,7 +127,6 @@ export const ResendCode = async (req, res) => {
       message: "Resend code successfully",
       success: true,
     });
-
   } catch (error) {
     console.log("Error resending verification code:", error);
     return res.json({ message: error.message, success: false });
@@ -153,18 +155,22 @@ export const LoginUser = async (req, res) => {
 
     // Generate temporary token (login verified, OTP pending)
     const tempToken = jwt.sign(
-      { _id: user._id, isAdmin:user.isAdmin,login_verified: true, otp_verified: false },
+      {
+        _id: user._id,
+        isAdmin: user.isAdmin,
+        login_verified: true,
+        otp_verified: false,
+      },
       process.env.JWT_SECRETE_KEY,
       { expiresIn: "5m" } // short-lived token
     );
 
     res.cookie("token", tempToken, {
-      httpOnly: true,     
-      secure: false,    
-      sameSite:"lax",   
-      maxAge: 24 * 24 * 60 * 60 * 1000,   // 2 day's expiry
-});
-
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 24 * 60 * 60 * 1000, // 2 day's expiry
+    });
 
     // Generate OTP
     const code = generateCode();
@@ -199,7 +205,7 @@ export const LoginUser = async (req, res) => {
 export const VerifyCode = async (req, res) => {
   try {
     const { verifyCode } = req.body;
-console.log("receive code :",verifyCode)
+    console.log("receive code :", verifyCode);
     if (!verifyCode) {
       return res.json({
         message: "Please enter verification code",
@@ -208,7 +214,7 @@ console.log("receive code :",verifyCode)
     }
 
     const userId = req.user._id;
-    
+
     const otpVerified = req.user.otp_verified;
     console.log("user is founded :", userId + " " + otpVerified);
 
@@ -225,13 +231,14 @@ console.log("receive code :",verifyCode)
       return res.json({ message: "Invalid verification code", success: false });
     }
 
-  
-
- 
-  
     // Generate final token with OTP verified
     const finalToken = jwt.sign(
-      { _id: user._id,isAdmin:user.isAdmin, login_verified: true, otp_verified: true },
+      {
+        _id: user._id,
+        isAdmin: user.isAdmin,
+        login_verified: true,
+        otp_verified: true,
+      },
       process.env.JWT_SECRETE_KEY,
       { expiresIn: "2d" } // long-lived token
     );
@@ -243,23 +250,18 @@ console.log("receive code :",verifyCode)
       sameSite: "lax",
       path: "/",
     });
-    
 
-    
-     res.json({
+    res.json({
       message: "Verification successful",
       finalToken: finalToken,
       success: true,
     });
-   // OTP verified: clear OTP fields
-      user.verifyCode = null;
+    // OTP verified: clear OTP fields
+    user.verifyCode = null;
     user.verifyCodeExpiry = null;
     await user.save();
 
-  
     return;
-
-
   } catch (error) {
     console.error("VerifyCode error:", error);
     return res.json({ message: error.message, success: false });
@@ -365,6 +367,8 @@ export const ForgotPassword = async (req, res) => {
       },
     });
 
+
+
     // Step 6: Mail options
     const mailOptions = {
       from: process.env.EMAIL,
@@ -399,8 +403,6 @@ export const ForgotPassword = async (req, res) => {
         success: true,
       });
     });
-
-
   } catch (error) {
     console.error(error.message);
     return res.json({
@@ -419,11 +421,15 @@ export const ResetPassword = async (req, res) => {
   try {
     // Step 1: Validate inputs
     if (!newPassword || !conFirmPassword) {
-      return res.status(400).json({ message: "All fields are required", success: false });
+      return res
+        .status(400)
+        .json({ message: "All fields are required", success: false });
     }
 
     if (newPassword !== conFirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match", success: false });
+      return res
+        .status(400)
+        .json({ message: "Passwords do not match", success: false });
     }
 
     // Step 2: Verify token
@@ -431,13 +437,17 @@ export const ResetPassword = async (req, res) => {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRETE_KEY);
     } catch (err) {
-      return res.status(400).json({ message: "Invalid or expired link", success: false });
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired link", success: false });
     }
 
     // Step 3: find user by ID
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "User not found", success: false });
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
     }
 
     // Step 4: Hash new password
@@ -458,10 +468,10 @@ export const ResetPassword = async (req, res) => {
 export const LogoutUser = async (req, res) => {
   try {
     res.clearCookie("token", {
-      httpOnly: true,   // must match cookie creation
-      secure: false,    // true only if using HTTPS
+      httpOnly: true, // must match cookie creation
+      secure: false, // true only if using HTTPS
       sameSite: "lax",
-      path: "/",        // important if you set it earlier
+      path: "/", // important if you set it earlier
     });
 
     return res.status(200).json({
@@ -479,7 +489,58 @@ export const LogoutUser = async (req, res) => {
 
 
 
+// add to playlist if it is exists then remove from playlist like a Toggle songId
 
+export const AddToPlayList = async (req, res) => {
+  try {
+    // Make sure req.user exists (set in auth middleware)
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        message: "Unauthorized. Please login.",
+        success: false,
+      });
+    }
 
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    console.log("user:", user);
 
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found, please login",
+        success: false,
+      });
+    }
+
+    const songId = req.params.songId;
+    if (!songId) {
+      return res.status(400).json({
+        message: "songId is required",
+        success: false,
+      });
+    }
+
+    if (user.playList.includes(songId)) {
+      user.playList = user.playList.filter((id) => id.toString() !== songId);
+      await user.save();
+      return res.status(200).json({
+        message: "Song removed from PlayList",
+        success: true,
+      });
+    } else {
+      user.playList.push(songId);
+      await user.save();
+      return res.status(200).json({
+        message: "Song added to PlayList",
+        success: true,
+      });
+    }
+  } catch (error) {
+    console.error("Error while updating playlist:", error.message);
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
 

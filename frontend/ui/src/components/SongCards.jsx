@@ -1,7 +1,22 @@
 import React from "react";
 import { FaBookmark, FaPlay } from "react-icons/fa";
+import { userContext } from "../context/UserState";
+import { useContext } from "react";
 
 const SongCards = ({ image, name, desc, id }) => {
+
+ const {AddToPlayList} = useContext(userContext);
+  
+//ToggleplayList  - add or remove
+
+const ToggleplayList =async ()=>{
+
+  const result = await AddToPlayList(id);
+    console.log(result)
+}
+
+
+
   return (
     <div
       className="min-w-[180px] p-2 px-3 rounded cursor-pointer 
@@ -26,7 +41,7 @@ const SongCards = ({ image, name, desc, id }) => {
             className="absolute bottom-2 right-5 bg-gray-700 text-white p-3 rounded-full 
                opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           >
-            <FaBookmark className="text-xl" />
+            <FaBookmark  onClick={ToggleplayList} className="text-xl" />
           </button>
         </div>
       </div>

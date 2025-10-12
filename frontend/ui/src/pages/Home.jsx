@@ -4,11 +4,12 @@ import SongContext from "../context/AppContext";
 import AlbumCard from "../components/AlbumCard";
 import SongCards from "../components/SongCards";
 import Loading from "../components/Loading";
-import { userContext } from "../context/UserState";
+
 
 const Home = () => {
   const { albums , songs , loading } = useContext(SongContext);
-
+ 
+  
   return (
  <div>
   {

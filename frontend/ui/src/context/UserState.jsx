@@ -13,7 +13,7 @@ const [IsAuth, setIsAuth] = useState(false);
 const [loading, setLoading] = useState(false);
 const [UserotpIsVerify, setUserOtpisVerify] = useState(false);
 const [UserIsLoggedIn, setUserIsLogged] = useState(false);
-
+// console.log(User?.userProfile?.playList[0]) // first songid of my playLists
 // Fetch user profile
 const fetchUser = async () => {
   setLoading(true);
@@ -25,7 +25,7 @@ const fetchUser = async () => {
       withCredentials: true,
     });
 
-    // console.log("User retrieved:", res.data.success);
+    console.log("User retrieved:", res.data);
 if (res.data.success) {
   setUser(res.data || res.data.userProfile); // depends on your backend structure
   setIsAuth(true); //only true if request succeeded
@@ -173,6 +173,29 @@ const PasswordReset = async(id,token, newPassword, conFirmPassword)=>{
 
 
 
+//add to playList 
+ const AddToPlayList = async (songId) => {
+  try {
+    const res = await axios.post(
+      `${baseUrl}/song/${songId}`,
+      {}, // no body needed
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+   // call 
+    return res.data;
+  } catch (error) {
+    console.error("Error while adding/removing song to playlist:", error.message);
+    return { success: false, message: error.message };
+  }
+};
+
+
+
 
 
   return (
@@ -189,7 +212,8 @@ const PasswordReset = async(id,token, newPassword, conFirmPassword)=>{
         loading,
         setIsAuth,
         IsAuth,
-        Logout
+        Logout,
+        AddToPlayList
       }}
     >
       {children}
