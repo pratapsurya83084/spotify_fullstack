@@ -70,6 +70,8 @@ export const addSong = async (req, res) => {
       return res.status(400).json({ message: "Please upload a song file.", success: false });
 
     const uploadedAudio = await uploadOnCloudinary(audioLocalFilePath, "auto");
+    console.log(uploadedAudio.url)
+
     if (!uploadedAudio?.url)
       return res.status(500).json({ message: "Song upload to Cloudinary failed.", success: false });
 

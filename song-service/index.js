@@ -18,22 +18,26 @@ app.use(
 
 
 export const Redisclient = redis.createClient({
-
-password:process.env.Redis_password,
-socket:{
-    host:"redis-15483.c305.ap-south-1-1.ec2.redns.redis-cloud.com",
-    port:15483,
-}
-
+  password: process.env.Redis_password,
+  socket: {
+    host: "redis-15483.c305.ap-south-1-1.ec2.redns.redis-cloud.com",
+    port: 15483, // ✅ Use TLS port
+    tls: false,
+    // connectTimeout: 10000, // 10 seconds
+  },
 });
 
-Redisclient.connect().then(()=>{
-    console.log("Connected to Redis...");
-})
-.catch((err)=>{ console.log("error in connecting to Redis",err);});
+Redisclient.on("connect", () => console.log("Connected to Redis..."));
+Redisclient.on("error", (err) => console.error("Redis error:", err));
 
-
-
+(async () => {
+  try {
+    await Redisclient.connect();
+    console.log("Redis connection established successfully");
+  } catch (err) {
+    console.error("Redis connection failed:", err);
+  }
+})();
 
 
 const port = process.env.PORT || 8000;

@@ -8,6 +8,7 @@ import Verify_Code from "./pages/Verify_Code";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import PasswordReset from "./pages/PasswordReset";
+import Albums from "./pages/Albums";
 
 const App = () => {
   const { IsAuth, loading } = useContext(userContext);
@@ -27,10 +28,8 @@ const App = () => {
           <Route path="/user/reset-password/:user_id/:token" element={<PasswordReset/>} />
 
           <Route path="/sign-up" element={<Signup />} />
-          <Route
-            path="/verify-code"
-            element={IsAuth ? <Home /> : <Verify_Code />}
-          />
+          <Route path="/verify-code" element={IsAuth ? <Home /> : <Verify_Code />}/>
+          <Route path="/album/:albumId" element={<Albums/>}/>
         </Routes>
       ) : (
         <Loading />

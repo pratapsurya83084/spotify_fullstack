@@ -39,6 +39,7 @@ password:process.env.Redis_password,
 socket:{
     host:"redis-15483.c305.ap-south-1-1.ec2.redns.redis-cloud.com",
     port:15483,
+    tls:false
 }
 
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState,useRef } from "react";
 import SongContext from "./AppContext";
 import axios from "axios";
 
@@ -10,9 +10,9 @@ const AppState = ({ children }) => {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [index , setIndex] = useState(0);
-    
+    // console.log(selectedSong)
   const baseUrl = "http://localhost:8000/api/v1";
-
+ const audioRef = useRef(null);
   // Fetch all songs
   const fetchSongs = useCallback(async () => {
     setLoading(true);
@@ -69,18 +69,19 @@ const AppState = ({ children }) => {
 
 
   // Fetch a specific album by id
-  const fetchAlbumById = async (id) => {
+  const fetchAlbumById = useCallback(async (id) => {
     try {
       const response = await axios.get(`${baseUrl}/album/${id}`);
       // console.log(response)
       if (response.data.status) {
         setSelectedAlbum(response.data.data);
-        console.log(response.data);
+        // console.log(response.data);
+        return  response.data;
       }
     } catch (error) {
       console.error(`Error fetching album ${id}:`, error);
     }
-  };
+  },[]);
 
   // Fetch a specific song by id
   const fetchSongById = async (id) => {
@@ -124,7 +125,32 @@ if (index === songs.length-1) {
     fetchSongs();
     fetchAlbums();
   }, [fetchSongs, fetchAlbums]);
+  
 
+
+
+ // play a song
+  const playSong = (song) => {
+    if (!song) return;
+
+    if (selectedSong?.id === song.id) {
+      // toggle play/pause
+      setIsPlaying((prev) => !prev);
+    } else {
+      setSelectedSong(song);
+      setIsPlaying(true);
+    }
+  };
+
+
+
+  const syncAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.load();
+    if (isPlaying) audio.play().catch(() => console.log("Autoplay blocked"));
+    else audio.pause();
+  };
 
 
 return (
@@ -140,6 +166,7 @@ return (
       prevSong,
       isPlaying,
       setIsPlaying,
+         syncAudio,
       fetchSongById,
       fetchAlbumById,
       loading,

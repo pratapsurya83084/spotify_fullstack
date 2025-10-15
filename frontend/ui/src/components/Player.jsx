@@ -50,11 +50,14 @@ const Player = () => {
   
   const handlePlayPause = () => {
     if (!audioRef.current) return;
-
-    if (isPlaying) {
+console.log(isPlaying)
+    if (isPlaying) {       // song is already  play   then pause karo 
       audioRef.current.pause();
+      console.log("player pause song :",isPlaying)
     } else {
       audioRef.current.play();
+      console.log("player play song :",isPlaying)
+
     }
     setIsPlaying(!isPlaying);
   };
@@ -68,7 +71,7 @@ const Player = () => {
         audioRef.current.play().catch(() => console.log("Autoplay blocked"));
       }
     }
-  }, [selectedSong]);
+  }, [selectedSong,isPlaying]);
 
   // ontrol
   const volumeChange = (e) => {
