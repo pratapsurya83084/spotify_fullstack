@@ -10,3 +10,24 @@ body{
     background-color: black;
     font-family: 'Poppins', sans-serif;
 }
+
+
+
+
+
+
+
+/* styles.css or global.css */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;       /* horizontal scrollbar height */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.5);
+  border-radius: 3px;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(100,100,100,0.5) transparent; /* Firefox */
+}

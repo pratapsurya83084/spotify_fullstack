@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import songContext from "../context/AppContext";
 import { GrChapterNext, GrChapterPrevious } from "react-icons/gr";
 import { FaPause, FaPlay } from "react-icons/fa";
+import { userContext } from "../context/UserState";
+import { useNavigate } from "react-router-dom";
 
 const Player = () => {
   const {
@@ -14,23 +16,24 @@ const Player = () => {
     nextSong,
   } = useContext(songContext);
 
+
+  const { IsAuth } = useContext(userContext);
   const audioRef = useRef(null);
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-
-  
+const navigate = useNavigate();
   // console.log("progress is:", progress);
   // console.log("duration is:", duration);
 
- 
   useEffect(() => {
+
     if (!selectedSong && songs && songs.length > 0) {
       setSelectedSong(songs[0]);
     }
+
   }, [songs, selectedSong, setSelectedSong]);
 
- 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -45,24 +48,26 @@ const Player = () => {
       audio.removeEventListener("loadedmetadata", handleLoadedMetaData);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, [duration,progress]);
+  }, [duration, progress]);
 
-  
   const handlePlayPause = () => {
+    if (!IsAuth) {
+      navigate('/login');
+      return;
+    }
     if (!audioRef.current) return;
-console.log(isPlaying)
-    if (isPlaying) {       // song is already  play   then pause karo 
+    console.log(isPlaying);
+    if (isPlaying) {
+      // song is already  play   then pause karo
       audioRef.current.pause();
-      console.log("player pause song :",isPlaying)
+      console.log("player pause song :", isPlaying);
     } else {
       audioRef.current.play();
-      console.log("player play song :",isPlaying)
-
+      console.log("player play song :", isPlaying);
     }
     setIsPlaying(!isPlaying);
   };
 
-  
   useEffect(() => {
     if (audioRef.current && selectedSong) {
       audioRef.current.load();
@@ -71,7 +76,7 @@ console.log(isPlaying)
         audioRef.current.play().catch(() => console.log("Autoplay blocked"));
       }
     }
-  }, [selectedSong,isPlaying]);
+  }, [selectedSong, isPlaying]);
 
   // ontrol
   const volumeChange = (e) => {
@@ -80,7 +85,6 @@ console.log(isPlaying)
     if (audioRef.current) audioRef.current.volume = newVolume;
   };
 
- 
   const durationChange = (e) => {
     const newTime = (parseFloat(e.target.value) / 100) * duration;
     if (audioRef.current) audioRef.current.currentTime = newTime;
@@ -115,11 +119,7 @@ console.log(isPlaying)
       {/* Player Controls */}
       <div className="flex flex-col items-center gap-1 m-auto">
         {selectedSong.audio && (
-          <audio
-            ref={audioRef}
-            src={selectedSong.audio}
-            onEnded={nextSong}
-          />
+          <audio ref={audioRef} src={selectedSong.audio} onEnded={nextSong} />
         )}
 
         {/* Progress bar */}

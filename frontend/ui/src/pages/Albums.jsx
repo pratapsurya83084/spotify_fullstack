@@ -1,18 +1,20 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { Play, Clock, Pause } from "lucide-react";
 import SongContext from "../context/AppContext";
 import Loading from "../components/Loading";
+import { userContext } from "../context/UserState";
 
 const Albums = () => {
   const [album, setAlbum] = useState(null);
   const [albumSongs, setAlbumSongs] = useState([]);
-  const { fetchAlbumById, selectedSong, setSelectedSong, isPlaying, setIsPlaying,nextSong, prevSong } =
-    useContext(SongContext);
+  const { fetchAlbumById, selectedSong, setSelectedSong, isPlaying, setIsPlaying ,nextSong, prevSong } = useContext(SongContext);
   const { albumId } = useParams();
   const [loading, setLoading] = useState(false);
-
+const {IsAuth} = useContext(userContext);
+const navigate = useNavigate();
+// console.log(IsAuth)
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -35,6 +37,10 @@ const Albums = () => {
 
 
 const handlePlay = (song) => {
+  if (!IsAuth) {
+    navigate('/login');
+    return;
+  }
   if (!song) return;
 
   if (selectedSong?.id === song.id && !isPlaying) {
